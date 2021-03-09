@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-source "$(dirname "$0")/utils/preValidation.sh"
-source "$(dirname "$0")/utils/ioPrescription.sh"
-source "$(dirname "$0")/utils/runWorkflowEngineClient.sh"
+source "$(dirname "$0")/scripts/preValidation.sh"
+source "$(dirname "$0")/scripts/ioPrescription.sh"
+source "$(dirname "$0")/scripts/runWorkflowEngineClient.sh"
 
 preValidation;
 
