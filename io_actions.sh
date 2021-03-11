@@ -72,8 +72,8 @@ function ioPrescription() {
 
     isSastEnabled=$(ruby -rjson -e 'j = JSON.parse(File.read("result.json")); puts j["security"]["activities"]["sast"]["enabled"]')
     isScaEnabled=$(ruby -rjson -e 'j = JSON.parse(File.read("result.json")); puts j["security"]["activities"]["sca"]["enabled"]')
-    echo "IS_SAST_ENABLED=${isSastEnabled}" > pipe.meta.env
-    echo "IS_SCA_ENABLED=${isScaEnabled}" >> pipe.meta.env
+    echo "IS_SAST_ENABLED=${isSastEnabled}" > io_actions.meta.env
+    echo "IS_SCA_ENABLED=${isScaEnabled}" >> io_actions.meta.env
 }
 
 function runWorkflowEngineClient () {
