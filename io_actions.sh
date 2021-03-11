@@ -38,7 +38,7 @@ function ioPrescription() {
         --io.url=${IO_SERVER_URL} \
         --io.token=${IO_ACCESS_TOKEN} \
         --io.manifest.url=${IO_MANIFEST_URL} \
-        --asset.id=${BITBUCKET_REPO_FULL_NAME} \
+        --asset.id=${IO_ASSET_ID} \
         --release.type=${RELEASE_TYPE} \
         --sensitive.package.pattern=${SENSITIVE_PACKAGE_PATTERN} \
         --scm.type="github" \
