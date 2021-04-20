@@ -13,10 +13,12 @@ env:
      IS_SCA_ENABLED: false
      IS_DAST_ENABLED: false
      SCM_TYPE: github
-     GITHUB_WORKSPACE: rahulguna10
-     GITHUB_REPO_NAME: "devsecops-test/aws-io-sample"
+     GITHUB_WORKSPACE: devsecops-test
+     GITHUB_REPO_NAME: github-io-sample
      GITHUB_BRANCH_NAME: master
      IO_ASSET_ID: "devsecops-test/aws-io-sample" 
+     RELEASE_TYPE: major
+     PERSONA: developer
 
 phases:
   pre_build:
@@ -28,7 +30,7 @@ phases:
       - echo ================Build Maven Package and Docker Image================
       - chmod +x io_actions.sh
       - sed -i -e 's/\r$//' io_actions.sh
-      - ./io_actions.sh --stage=IO --workflow.version=2021.04
+      - ./io_actions.sh --stage=IO --workflow.version=2021.04 --manifest.type=json
       - source io_actions.meta.env
       - echo "Is SAST Enabled=${IS_SAST_ENABLED}"
       - echo "Is SCA Enabled=${IS_SCA_ENABLED}"
