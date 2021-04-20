@@ -10,6 +10,7 @@ run() {
                  --workflow.version=*) WORKFLOW_ENGINE_VERSION="${i#*=}" ;;
                  --is.sast.enabled=*) IS_SAST_ENABLED="${i#*=}" ;;
                  --is.sca.enabled=*) IS_SCA_ENABLED="${i#*=}" ;;
+		 --is.dast.enabled=*) IS_DAST_ENABLED="${i#*=}" ;;
                  *) ;;
        	    esac
    	done
@@ -19,6 +20,7 @@ run() {
    	echo ${WORKFLOW_ENGINE_VERSION};
    	echo ${IS_SAST_ENABLED};
    	echo ${IS_SCA_ENABLED};
+	echo ${IS_DAST_ENABLED};
 
 	if [[ "$STAGE" == "IO" ]]; then
 	    ioPrescription ""
@@ -41,6 +43,7 @@ function preValidation() {
     JIRA_ASSIGNEE=${JIRA_ASSIGNEE:="<<JIRA_ASSIGNEE>>"};
     IS_SAST_ENABLED=${IS_SAST_ENABLED:="true"};
     IS_SCA_ENABLED=${IS_SCA_ENABLED:="true"};
+    IS_DAST_ENABLED=${IS_DAST_ENABLED:="true"};
     
     additionalWorkflowArgs=${additionalWorkflowArgs:=""};
 }
@@ -82,6 +85,7 @@ function ioPrescription() {
         --jira.assignee=${JIRA_ASSIGNEE} \
         --IS_SAST_ENABLED=${IS_SAST_ENABLED} \
         --IS_SCA_ENABLED=${IS_SCA_ENABLED} \
+        --IS_DAST_ENABLED=${IS_DAST_ENABLED} \
         --slack.channel.id=${SLACK_CHANNEL_ID} \
         --slack.token=${SLACK_TOKEN} \
         --stage=${STAGE} \
@@ -131,6 +135,7 @@ function runWorkflowEngineClient () {
         --jira.assignee=${JIRA_ASSIGNEE} \
         --IS_SAST_ENABLED=${IS_SAST_ENABLED} \
         --IS_SCA_ENABLED=${IS_SCA_ENABLED} \
+        --IS_DAST_ENABLED=${IS_DAST_ENABLED} \
         --slack.channel.id=${SLACK_CHANNEL_ID} \
         --slack.token=${SLACK_TOKEN} \
         --stage=${STAGE} \
