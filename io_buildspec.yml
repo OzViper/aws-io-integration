@@ -8,25 +8,30 @@ env:
     WORKFLOW_ENGINE_SERVER_URL: IO_INTEGRATION:WORKFLOW_ENGINE_SERVER_URL
     POLARIS_SERVER_URL: IO_INTEGRATION:POLARIS_SERVER_URL
     POLARIS_ACCESS_TOKEN: IO_INTEGRATION:POLARIS_ACCESS_TOKEN
+  variables:
+     IS_SAST_ENABLED: false
+     IS_SCA_ENABLED: false
+     IS_DAST_ENABLED: false
+     SCM_TYPE: github
+     GITHUB_WORKSPACE: rahulguna10
+     GITHUB_REPO_NAME: "devsecops-test/aws-io-sample"
+     GITHUB_BRANCH_NAME: master
+     IO_ASSET_ID: "devsecops-test/aws-io-sample" 
 
 phases:
   pre_build:
     commands:
       - echo ================Getting IO Actions================
-      - IS_SAST_ENABLED=$(aws ssm get-parameters --region us-east-2 --names IO_IS_SAST_ENABLED --query Parameters[0].Value)
-      - echo $IS_SAST_ENABLED
-      - IS_SCA_ENABLED=$(aws ssm get-parameters --region us-east-2 --names IO_IS_SCA_ENABLED --query Parameters[0].Value)
-      - echo $IS_SCA_ENABLED
-      - aws ssm put-parameter --name "IO_IS_SAST_ENABLED" --value "abcd" --type "String" --region "us-east-2" --overwrite    
       - wget https://intelligent-security-scan.s3.us-east-2.amazonaws.com/io_actions.sh
   build:
     commands:
       - echo ================Build Maven Package and Docker Image================
-      - export GITHUB_WORKSPACE=rahulguna10
-      - export GITHUB_REPO_NAME=devsecops-test/aws-io-sample
-      - export GITHUB_BRANCH_NAME=master
-      - export IO_ASSET_ID=devsecops-test/aws-io-sample
-      - export POLARIS_PROJECT_NAME=sig-devsecops/aws-io-sample
       - chmod +x io_actions.sh
       - sed -i -e 's/\r$//' io_actions.sh
-      - ./io_actions.sh --stage=IO --workflow.version=2021.01
+      - ./io_actions.sh --stage=IO --workflow.version=2021.04
+      - source io_actions.meta.env
+      - echo "Is SAST Enabled=${IS_SAST_ENABLED}"
+      - echo "Is SCA Enabled=${IS_SCA_ENABLED}"
+      #Update Prescription Results to Parameter Store
+      - aws ssm put-parameter --name "IO_IS_SAST_ENABLED" --value ${IS_SAST_ENABLED} --type "String" --region "us-east-2" --overwrite
+      - aws ssm put-parameter --name "IO_IS_SCA_ENABLED" --value ${IS_SCA_ENABLED} --type "String" --region "us-east-2" --overwrite
