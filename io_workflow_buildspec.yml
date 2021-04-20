@@ -1,14 +1,40 @@
 version: 0.2
 
 env:
+  shell: bash
+  secrets-manager:
+    IO_SERVER_URL: IO_INTEGRATION:IO_SERVER_URL
+    IO_ACCESS_TOKEN: IO_INTEGRATION:IO_ACCESS_TOKEN
+    WORKFLOW_ENGINE_SERVER_URL: IO_INTEGRATION:WORKFLOW_ENGINE_SERVER_URL
+    POLARIS_SERVER_URL: IO_INTEGRATION:POLARIS_SERVER_URL
+    POLARIS_ACCESS_TOKEN: IO_INTEGRATION:POLARIS_ACCESS_TOKEN
+    BLACKDUCK_SERVER_URL: IO_INTEGRATION:BLACKDUCK_SERVER_URL
+    BLACKDUCK_ACCESS_TOKEN: IO_INTEGRATION:BLACKDUCK_ACCESS_TOKEN
   parameter-store:
-     sast_enable: "IO_IS_SAST_ENABLED"
+     IS_SAST_ENABLED: "IO_IS_SAST_ENABLED"
+     IS_SCA_ENABLED: "IO_IS_SCA_ENABLED"
+     IS_DAST_ENABLED: "IO_IS_DAST_ENABLED"
+  variables:
+     SCM_TYPE: github
+     GITHUB_WORKSPACE: rahulguna10
+     GITHUB_REPO_NAME: "devsecops-test/aws-io-sample"
+     GITHUB_BRANCH_NAME: master
+     IO_ASSET_ID: "devsecops-test/aws-io-sample" 
+     POLARIS_PROJECT_NAME: "sig-devsecops/aws-io-sample"
+     BLACKDUCK_PROJECT_NAME: "github-io-sample:1.0.0"
+
 phases:
+  pre_build:
+    commands:
+      - echo ================Getting IO Actions================
+      - wget https://intelligent-security-scan.s3.us-east-2.amazonaws.com/io_actions.sh
   build:
     commands:
-      - echo WorklowEngine
-      - IS_SAST_ENABLED=$(aws ssm get-parameters --region us-east-2 --names IO_IS_SAST_ENABLED --query Parameters[0].Value)
-      - echo $IS_SAST_ENABLED
-      - IS_SCA_ENABLED=$(aws ssm get-parameters --region us-east-2 --names IO_IS_SCA_ENABLED --query Parameters[0].Value)
-      - echo $IS_SCA_ENABLED
-      - echo $sast_enable
+      - echo ================Build Maven Package and Docker Image================
+      - chmod +x io_actions.sh
+      - sed -i -e 's/\r$//' io_actions.sh
+      - ./io_actions.sh --stage=WORKFLOW --workflow.version=2021.04
+artifacts:
+  files:
+    - workflowengine-results.sarif.json
+  name: workflowengine-sarif-report
