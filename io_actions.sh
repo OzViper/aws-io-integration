@@ -3,12 +3,12 @@
 run() {
 	allargs="${ARGS[@]}"
 
-	
 	for i in "${ARGS[@]}"; do
             case "$i" in
                  --stage=*) STAGE="${i#*=}" ;;
                  --workflow.version=*) WORKFLOW_ENGINE_VERSION="${i#*=}" ;;
-                 --is.sast.enabled=*) IS_SAST_ENABLED="${i#*=}" ;;
+                 --manifest.type=*) MANIFEST_TYPE="${i#*=}" ;;
+		 --is.sast.enabled=*) IS_SAST_ENABLED="${i#*=}" ;;
                  --is.sca.enabled=*) IS_SCA_ENABLED="${i#*=}" ;;
 		 --is.dast.enabled=*) IS_DAST_ENABLED="${i#*=}" ;;
                  *) ;;
@@ -36,6 +36,7 @@ function preValidation() {
     JIRA_USERNAME=${JIRA_USERNAME:="<<JIRA_USERNAME>>"};
     JIRA_AUTH_TOKEN=${JIRA_AUTH_TOKEN:="<<JIRA_AUTH_TOKEN>>"};
     JIRA_ASSIGNEE=${JIRA_ASSIGNEE:="<<JIRA_ASSIGNEE>>"};
+    MANIFEST_TYPE=${MANIFEST_TYPE:="yml"};
     IS_SAST_ENABLED=${IS_SAST_ENABLED:="true"};
     IS_SCA_ENABLED=${IS_SCA_ENABLED:="true"};
     IS_DAST_ENABLED=${IS_DAST_ENABLED:="true"};
@@ -49,7 +50,6 @@ function ioPrescription() {
     chmod +x prescription.sh
     sed -i -e 's/\r$//' prescription.sh
 
-    # fixme - if something goes wrong here!?
     ./prescription.sh \
         --io.url=${IO_SERVER_URL} \
         --io.token=${IO_ACCESS_TOKEN} \
@@ -100,7 +100,6 @@ function runWorkflowEngineClient () {
     chmod +x prescription.sh
     sed -i -e 's/\r$//' prescription.sh
 
-    # fixme - if something goes wrong here!?
     ./prescription.sh \
         --io.url=${IO_SERVER_URL} \
         --io.token=${IO_ACCESS_TOKEN} \
@@ -141,10 +140,12 @@ function runWorkflowEngineClient () {
     
     echo "APP_MANIFEST_FILE generated successfullly....Calling WorkFlow Engine"
     
-    # fixme - if something goes wrong here!?
-    java -jar WorkflowClient.jar \
-        --workflowengine.url=${WORKFLOW_ENGINE_SERVER_URL} \
-        --io.manifest.path=synopsys-io.yml
+    
+    if [[ "$MANIFEST_TYPE" == "json" ]]; then
+        java -jar WorkflowClient.jar --workflowengine.url=${WORKFLOW_ENGINE_SERVER_URL} --io.manifest.path=synopsys-io.json
+    elif [[ "$MANIFEST_TYPE" == "yml" ]]; then
+        java -jar WorkflowClient.jar --workflowengine.url=${WORKFLOW_ENGINE_SERVER_URL} --io.manifest.path=synopsys-io.yml
+    fi
 }
 
 ARGS=("$@")
