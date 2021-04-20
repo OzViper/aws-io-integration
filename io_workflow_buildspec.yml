@@ -16,11 +16,11 @@ env:
      IS_DAST_ENABLED: "IO_IS_DAST_ENABLED"
   variables:
      SCM_TYPE: github
-     GITHUB_WORKSPACE: rahulguna10
-     GITHUB_REPO_NAME: "devsecops-test/aws-io-sample"
+     GITHUB_WORKSPACE: devsecops-test
+     GITHUB_REPO_NAME: github-io-sample
      GITHUB_BRANCH_NAME: master
      IO_ASSET_ID: "devsecops-test/aws-io-sample" 
-     POLARIS_PROJECT_NAME: "sig-devsecops/aws-io-sample"
+     POLARIS_PROJECT_NAME: "sig-devsecops/github-io-sample"
      BLACKDUCK_PROJECT_NAME: "github-io-sample:1.0.0"
 
 phases:
