@@ -16,11 +16,6 @@ run() {
    	done
    	
 	preValidation ""
-	echo ${STAGE};
-   	echo ${WORKFLOW_ENGINE_VERSION};
-   	echo ${IS_SAST_ENABLED};
-   	echo ${IS_SCA_ENABLED};
-	echo ${IS_DAST_ENABLED};
 
 	if [[ "$STAGE" == "IO" ]]; then
 	    ioPrescription ""
@@ -34,7 +29,7 @@ function preValidation() {
     IO_SERVER_URL=${IO_SERVER_URL:?'IO_SERVER_URL variable missing.'};
     IO_ACCESS_TOKEN=${IO_ACCESS_TOKEN:?'IO_ACCESS_TOKEN variable missing.'};
     WORKFLOW_ENGINE_SERVER_URL=${WORKFLOW_ENGINE_SERVER_URL:?'WORKFLOW_ENGINE_SERVER_URL variable missing.'};
-    WORKFLOW_ENGINE_VERSION=${WORKFLOW_ENGINE_VERSION:="2021.01"};
+    WORKFLOW_ENGINE_VERSION=${WORKFLOW_ENGINE_VERSION:="2021.04"};
     JIRA_API_URL=${JIRA_API_URL:="<<JIRA_API_URL>>"};
     JIRA_PROJECT_NAME=${JIRA_PROJECT_NAME:="<<JIRA_PROJECT_NAME>>"};
     JIRA_ISSUES_QUERY=${JIRA_ISSUES_QUERY:="<<JIRA_ISSUES_QUERY>>"};
@@ -59,21 +54,24 @@ function ioPrescription() {
         --io.url=${IO_SERVER_URL} \
         --io.token=${IO_ACCESS_TOKEN} \
         --io.manifest.url=${IO_MANIFEST_URL} \
-        --asset.id=${IO_ASSET_ID} \
+        --stage=${STAGE} \
+        --persona=${PERSONA} \
+	--asset.id=${IO_ASSET_ID} \
         --release.type=${RELEASE_TYPE} \
+	--manifest.type=${MANIFEST_TYPE} \
         --sensitive.package.pattern=${SENSITIVE_PACKAGE_PATTERN} \
-        --scm.type="github" \
         --workflow.url=${WORKFLOW_ENGINE_SERVER_URL} \
         --workflow.version=${WORKFLOW_ENGINE_VERSION} \
-        --polaris.project.name=${POLARIS_PROJECT_NAME} \
+        --scm.type=${SCM_TYPE} \
+	--scm.owner=${GITHUB_WORKSPACE} \
+	--scm.repo.name=${GITHUB_REPO_NAME} \
+        --scm.branch.name=${GITHUB_BRANCH_NAME} \
+	--polaris.project.name=${POLARIS_PROJECT_NAME} \
         --polaris.url=${POLARIS_SERVER_URL} \
         --polaris.token=${POLARIS_ACCESS_TOKEN} \
         --blackduck.project.name=${BLACKDUCK_PROJECT_NAME} \
         --blackduck.url=${BLACKDUCK_SERVER_URL} \
         --blackduck.api.token=${BLACKDUCK_ACCESS_TOKEN} \
-        --scm.owner=${GITHUB_WORKSPACE} \
-        --scm.repo.name=${GITHUB_REPO_NAME} \
-        --scm.branch.name=${GITHUB_BRANCH_NAME} \
         --bitbucket.commit.id=${BITBUCKET_COMMIT} \
         --bitbucket.username=${BITBUCKET_USERNAME} \
         --bitbucket.password=${BITBUCKET_ACCESS_TOKEN} \
@@ -88,12 +86,10 @@ function ioPrescription() {
         --IS_DAST_ENABLED=${IS_DAST_ENABLED} \
         --slack.channel.id=${SLACK_CHANNEL_ID} \
         --slack.token=${SLACK_TOKEN} \
-        --stage=${STAGE} \
-        --persona=${PERSONA} \
         ${additionalWorkflowArgs}
 
-    isSastEnabled=$(ruby -rjson -e 'j = JSON.parse(File.read("result.json")); puts j["security"]["activities"]["sast"]["enabled"]')
-    isScaEnabled=$(ruby -rjson -e 'j = JSON.parse(File.read("result.json")); puts j["security"]["activities"]["sca"]["enabled"]')
+    isSastEnabled=$(jq -r '.security.activities.sast.enabled' result.json)
+    isScaEnabled=$(jq -r '.security.activities.sca.enabled' result.json)
     echo "IS_SAST_ENABLED=${isSastEnabled}" > io_actions.meta.env
     echo "IS_SCA_ENABLED=${isScaEnabled}" >> io_actions.meta.env
 }
@@ -109,21 +105,24 @@ function runWorkflowEngineClient () {
         --io.url=${IO_SERVER_URL} \
         --io.token=${IO_ACCESS_TOKEN} \
         --io.manifest.url=${IO_MANIFEST_URL} \
+        --stage=${STAGE} \
+        --persona=${PERSONA} \
         --asset.id=${IO_ASSET_ID} \
         --release.type=${RELEASE_TYPE} \
+	--manifest.type=${MANIFEST_TYPE} \
         --sensitive.package.pattern=${SENSITIVE_PACKAGE_PATTERN} \
-        --scm.type="github" \
         --workflow.url=${WORKFLOW_ENGINE_SERVER_URL} \
         --workflow.version=${WORKFLOW_ENGINE_VERSION} \
-        --polaris.project.name=${POLARIS_PROJECT_NAME} \
+        --scm.type=${SCM_TYPE} \
+	--scm.owner=${GITHUB_WORKSPACE} \
+	--scm.repo.name=${GITHUB_REPO_NAME} \
+        --scm.branch.name=${GITHUB_BRANCH_NAME} \
+	--polaris.project.name=${POLARIS_PROJECT_NAME} \
         --polaris.url=${POLARIS_SERVER_URL} \
         --polaris.token=${POLARIS_ACCESS_TOKEN} \
         --blackduck.project.name=${BLACKDUCK_PROJECT_NAME} \
         --blackduck.url=${BLACKDUCK_SERVER_URL} \
         --blackduck.api.token=${BLACKDUCK_ACCESS_TOKEN} \
-        --scm.owner=${GITHUB_WORKSPACE} \
-        --scm.repo.name=${GITHUB_REPO_NAME} \
-        --scm.branch.name=${GITHUB_BRANCH_NAME} \
         --bitbucket.commit.id=${BITBUCKET_COMMIT} \
         --bitbucket.username=${BITBUCKET_USERNAME} \
         --bitbucket.password=${BITBUCKET_ACCESS_TOKEN} \
@@ -138,8 +137,6 @@ function runWorkflowEngineClient () {
         --IS_DAST_ENABLED=${IS_DAST_ENABLED} \
         --slack.channel.id=${SLACK_CHANNEL_ID} \
         --slack.token=${SLACK_TOKEN} \
-        --stage=${STAGE} \
-        --persona=${PERSONA} \
         ${additionalWorkflowArgs}
     
     echo "APP_MANIFEST_FILE generated successfullly....Calling WorkFlow Engine"
