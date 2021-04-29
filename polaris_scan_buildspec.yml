@@ -1,0 +1,22 @@
+version: 0.2
+
+env:
+  shell: bash
+  secrets-manager:
+    POLARIS_SERVER_URL: IO_INTEGRATION:POLARIS_SERVER_URL
+    POLARIS_ACCESS_TOKEN: IO_INTEGRATION:POLARIS_ACCESS_TOKEN
+  parameter-store:
+     IS_SAST_ENABLED: "IO_IS_SAST_ENABLED"
+  variables:
+     POLARIS_PROJECT_NAME: "sig-devsecops/github-io-sample"
+
+phases:
+  build:
+    commands:
+      - echo ================Trigger Polaris Scan================
+      - |
+        if [ "$IS_SAST_ENABLED" = true ]; then 
+            wget -q $POLARIS_SERVER_URL/api/tools/polaris_cli-linux64.zip
+            unzip -j polaris_cli-linux64.zip -d /tmp
+            /tmp/polaris analyze -w
+        fi
