@@ -1,0 +1,23 @@
+version: 0.2
+
+env:
+  shell: bash
+  secrets-manager:
+    BLACKDUCK_SERVER_URL: IO_INTEGRATION:BLACKDUCK_SERVER_URL
+    BLACKDUCK_ACCESS_TOKEN: IO_INTEGRATION:BLACKDUCK_ACCESS_TOKEN
+  parameter-store:
+     IS_SCA_ENABLED: "IO_IS_SCA_ENABLED"
+  variables:
+     BLACKDUCK_PROJECT_NAME: "github-io-sample:1.0.0"
+
+phases:
+  build:
+    commands:
+      - echo ================Trigger Blackduck Scan================
+      - |
+        if [ "$IS_SCA_ENABLED" = true ]; then 
+           bash <(curl -s https://detect.synopsys.com/detect.sh) \
+            --blackduck.url="$BLACKDUCK_SERVER_URL" \
+            --blackduck.api.token="$BLACKDUCK_ACCESS_TOKEN" \
+            --detect.tools="SIGNATURE_SCAN,DETECTOR"
+        fi
